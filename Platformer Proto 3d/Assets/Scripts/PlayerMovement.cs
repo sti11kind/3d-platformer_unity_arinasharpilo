@@ -49,6 +49,8 @@ public class PlayerMovement : NetworkBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        mainCamera = FindAnyObjectByType<Camera>().transform;
+        soundManager = FindAnyObjectByType<SoundManager>();
     }
 
     private void Update()
