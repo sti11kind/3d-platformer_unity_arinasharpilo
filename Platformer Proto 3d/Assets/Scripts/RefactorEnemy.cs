@@ -24,6 +24,8 @@ public class RefactorEnemy : MonoBehaviour
     public Rigidbody rb;
 
     private GameObject player;
+    
+    private Patrol patrolScript;
 
     /// <summary>
     /// Contains tunable parameters to tweak the enemy's movement and behavior.
@@ -46,43 +48,25 @@ public class RefactorEnemy : MonoBehaviour
 
         [Tooltip("How close the enemy needs to be to explode")]
         public float explodeDist;
+        
 
     }
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        patrolScript = GetComponent<Patrol>();
     }
     private void Update()
     {
         // changes the enemy's behavior: pacing in circles or chasing the player
         if (enemyStats.idle == true)
         {
-            //Patrol Logic
-                Vector3 moveToPoint = patrolPoints[currentPatrolPoint].position;
-                transform.position = Vector3.MoveTowards(transform.position, moveToPoint, enemyStats.walkSpeed * Time.deltaTime);
-
-                if (Vector3.Distance(transform.position, moveToPoint) < 0.01f)
-                {
-                    currentPatrolPoint++;
-                    if (currentPatrolPoint > patrolPoints.Length - 1)
-                    {
-                        currentPatrolPoint = 0;
-                    }
-                }
+            patrolScript.Patrolling(enemyStats.walkSpeed);
         }
         else if (enemyStats.idle == false)
         {
-            //Chase the player
-             sight.position = new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z);
-             transform.LookAt(sight);
-             transform.position = Vector3.MoveTowards(transform.position, player.transform.position, Time.deltaTime * enemyStats.chaseSpeed);
-           
-            //Explode if we get within the enemyStats.explodeDist
-            if (Vector3.Distance(transform.position, player.transform.position) < enemyStats.explodeDist)
-            {
-                StartCoroutine("Explode");
-                enemyStats.idle = true;
-            }
+            Chase(player.transform);
+            Explode();
         }
 
         // stops enemy from following player up the inaccessible slopes
@@ -91,6 +75,25 @@ public class RefactorEnemy : MonoBehaviour
             transform.Translate(Vector3.back * 20 * Time.deltaTime, Space.World);
         }
     }
+
+    private void Chase(Transform toChase)
+    {
+        //Chase the player
+        sight.position = new Vector3(toChase.transform.position.x, transform.position.y, toChase.transform.position.z);
+        transform.LookAt(sight);
+        transform.position = Vector3.MoveTowards(transform.position, toChase.transform.position, Time.deltaTime * enemyStats.chaseSpeed);
+    }
+
+    private void ExplodeCheck()
+    {
+        //Explode if we get within the enemyStats.explodeDist
+        if (Vector3.Distance(transform.position, player.transform.position) < enemyStats.explodeDist)
+        {
+            StartCoroutine("Explode");
+            enemyStats.idle = true;
+        }
+    }
+    
     private void OnCollisionEnter(Collision other)
     {
         if (other.gameObject.layer == 9)
