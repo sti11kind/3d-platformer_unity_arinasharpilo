@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 //using System.Diagnostics;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : NetworkBehaviour
 {
     /// <summary>
     /// Contains tunable parameters to tweak the player's basic movement.
@@ -52,7 +53,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        if (playerStats.canMove == true)
+        if (playerStats.canMove == true && IsOwner)
         {
 
             // maps movement onto WASD keys and arrow keys
