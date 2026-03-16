@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
-public class PlayerAnimations : MonoBehaviour
+public class PlayerAnimations : NetworkBehaviour
 {
     private Animator anim;
     private PlayerMovement playerMovementScript;
@@ -20,6 +20,7 @@ public class PlayerAnimations : MonoBehaviour
 
     private void Update()
     {
+        if(!IsOwner) return;
         // Plays the running animation when holding down the move keys.
         if (Input.GetButton("Horizontal") || Input.GetButton("Vertical"))
         {
